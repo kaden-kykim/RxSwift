@@ -38,4 +38,65 @@ func print<T: CustomStringConvertible>(label: String, event: Event<T>) {
 example(of: "BehaviorSubject") {
     let subject = BehaviorSubject(value: "Initial value")
     let disposeBag = DisposeBag()
+    subject.subscribe {
+        print(label: "1)", event: $0)
+    }
+    .disposed(by: disposeBag)
+    subject.onNext("X")
+    subject.onError(MyError.anError)
+    subject.subscribe {
+        print(label: "2)", event: $0)
+    }
+    .disposed(by: disposeBag)
+}
+
+example(of: "ReplaySubject") {
+    let subject = ReplaySubject<String>.create(bufferSize: 2)
+    let disposeBag = DisposeBag()
+    
+    subject.onNext("1")
+    subject.onNext("2")
+    subject.onNext("3")
+    
+    subject.subscribe {
+        print(label: "1)", event: $0)
+    }
+    .disposed(by: disposeBag)
+    
+    subject.subscribe {
+        print(label: "2)", event: $0)
+    }
+    .disposed(by: disposeBag)
+    
+    subject.onNext("4")
+    subject.onError(MyError.anError)
+    subject.dispose()
+    
+    subject.subscribe {
+        print(label: "3)", event: $0)
+    }
+    .disposed(by: disposeBag)
+    
+}
+
+// Deprecated -> (Non-official) Using BehaviorRelay on RxCocoa
+example(of: "Variable") {
+    var variable = Variable("Initial value")
+    let disposeBag = DisposeBag()
+    
+    variable.value = "New initial value"
+    
+    variable.asObservable().subscribe {
+        print(label: "1)", event: $0)
+    }
+    .disposed(by: disposeBag)
+    
+    variable.value = "1"
+    
+    variable.asObservable().subscribe {
+        print(label: "2)", event: $0)
+    }
+    .disposed(by: disposeBag)
+    
+    variable.value = "2"
 }
