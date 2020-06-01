@@ -3,5 +3,7 @@
     <pages>
         <page name='Subjects'/>
         <page name='Observables'/>
+        <page name='Filtering Operators'/>
+        <page name='Transforming Operators'/>
     </pages>
 </playground>
