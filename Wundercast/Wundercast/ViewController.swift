@@ -31,6 +31,7 @@ import RxSwift
 import RxCocoa
 
 class ViewController: UIViewController {
+    
     @IBOutlet private var searchCityName: UITextField!
     @IBOutlet private var tempLabel: UILabel!
     @IBOutlet private var humidityLabel: UILabel!
