@@ -55,32 +55,26 @@ class ViewController: UIViewController {
             })
             .disposed(by: bag)
         
-        let search = searchCityName.rx.text.orEmpty
+        let search = searchCityName.rx.controlEvent(.editingDidEndOnExit)
+            .map { self.searchCityName.text ?? "" }
             .filter { !$0.isEmpty }
-            .flatMapLatest({
-                ApiController.shared.currentWeather(city: $0).catchErrorJustReturn(ApiController.Weather.empty)
-            })
-            .share(replay: 1)
-            .observeOn(MainScheduler.instance)
+            .flatMapLatest({ ApiController.shared.currentWeather(city: $0) })
+            .asDriver(onErrorJustReturn: ApiController.Weather.empty)
         
-        search
-            .map { "\($0.temperature)° C" }
-            .bind(to: tempLabel.rx.text)
+        search.map { "\($0.temperature)° C" }
+            .drive(tempLabel.rx.text)
             .disposed(by: bag)
         
-        search
-            .map { $0.icon }
-            .bind(to: iconLabel.rx.text)
+        search.map { $0.icon }
+            .drive(iconLabel.rx.text)
             .disposed(by: bag)
         
-        search
-            .map { "\($0.humidity)%" }
-            .bind(to: humidityLabel.rx.text)
+        search.map { "\($0.humidity)%" }
+            .drive(humidityLabel.rx.text)
             .disposed(by: bag)
         
-        search
-            .map { $0.cityName }
-            .bind(to: cityNameLabel.rx.text)
+        search.map { $0.cityName }
+            .drive(cityNameLabel.rx.text)
             .disposed(by: bag)
     }
     
