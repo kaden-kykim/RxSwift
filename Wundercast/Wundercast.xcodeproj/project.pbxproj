@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		410B09A83CAF27B6032B7631 /* Pods_Wundercast.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9EE338960399798131E4FCA /* Pods_Wundercast.framework */; };
-		6F9E531524860A4F00563513 /* ApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F4203292485FBD100ED713B /* ApiKeys.swift */; };
 		CB4D69411DE9A7D100DC0488 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4D69401DE9A7D100DC0488 /* AppDelegate.swift */; };
 		CB4D69431DE9A7D100DC0488 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4D69421DE9A7D100DC0488 /* ViewController.swift */; };
 		CB4D69461DE9A7D100DC0488 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB4D69441DE9A7D100DC0488 /* Main.storyboard */; };
@@ -23,7 +22,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		6F4203292485FBD100ED713B /* ApiKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ApiKeys.swift; path = wundercast/Controllers/ApiKeys.swift; sourceTree = SOURCE_ROOT; };
 		CB4D693D1DE9A7D100DC0488 /* Wundercast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wundercast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB4D69401DE9A7D100DC0488 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB4D69421DE9A7D100DC0488 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -126,7 +124,6 @@
 		CB4D69671DE9AD5100DC0488 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				6F4203292485FBD100ED713B /* ApiKeys.swift */,
 				CB4D69681DE9AD6200DC0488 /* weather.ttf */,
 				CB4D696A1DE9AD7C00DC0488 /* LICENSE */,
 			);
@@ -258,7 +255,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F9E531524860A4F00563513 /* ApiKeys.swift in Sources */,
 				CB4D69431DE9A7D100DC0488 /* ViewController.swift in Sources */,
 				CB4D69711DE9C70100DC0488 /* Colors.swift in Sources */,
 				CB4D69411DE9A7D100DC0488 /* AppDelegate.swift in Sources */,
