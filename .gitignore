@@ -93,3 +93,6 @@ iOSInjectionProject/
 Libs/
 *.o
 *.remap
+
+# API Key
+ApiKeys.swift
