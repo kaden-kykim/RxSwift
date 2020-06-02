@@ -98,7 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				CB4D69671DE9AD5100DC0488 /* Assets */,
-				CB4D69631DE9AD2A00DC0488 /* controllers */,
+				CB4D69631DE9AD2A00DC0488 /* Controllers */,
 				CBE130C61E21CF5F00F47C00 /* Extensions */,
 				CB4D69641DE9AD2A00DC0488 /* Utils */,
 				CB4D69401DE9A7D100DC0488 /* AppDelegate.swift */,
@@ -111,12 +111,12 @@
 			path = Wundercast;
 			sourceTree = "<group>";
 		};
-		CB4D69631DE9AD2A00DC0488 /* controllers */ = {
+		CB4D69631DE9AD2A00DC0488 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
 				CB4D69651DE9AD3300DC0488 /* ApiController.swift */,
 			);
-			path = controllers;
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 		CB4D69641DE9AD2A00DC0488 /* Utils */ = {
