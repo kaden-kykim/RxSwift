@@ -31,6 +31,7 @@ import RxSwift
 import RxCocoa
 
 class ApiController {
+    
     struct Weather: Decodable {
         let cityName: String
         let temperature: Int
