@@ -30,6 +30,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 import MapKit
+import CoreLocation
 
 class ViewController: UIViewController {
     @IBOutlet private var mapView: MKMapView!
@@ -42,6 +43,7 @@ class ViewController: UIViewController {
     @IBOutlet private var iconLabel: UILabel!
     @IBOutlet private var cityNameLabel: UILabel!
     
+    private let locationManager = CLLocationManager()
     private let bag = DisposeBag()
     
     override func viewDidLoad() {
@@ -67,6 +69,22 @@ class ViewController: UIViewController {
             )
             .startWith(true)
             .asDriver(onErrorJustReturn: false)
+        
+//        let currentLocation = locationManager.rx.didUpdateLocations
+//            .map { $0[0] }
+//            .filter { return $0.horizontalAccuracy < kCLLocationAccuracyHundredMeters }
+        
+        geoLocationButton.rx.tap
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self else { return }
+                self.locationManager.requestWhenInUseAuthorization()
+                self.locationManager.startUpdatingLocation()
+            })
+            .disposed(by: bag)
+        
+        locationManager.rx.didUpdateLocations
+            .subscribe(onNext: { print($0) })
+            .disposed(by: bag)
         
         running
             .skip(1)
