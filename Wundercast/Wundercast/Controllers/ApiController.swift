@@ -129,7 +129,6 @@ class ApiController {
             urlComponents.queryItems = queryItems
         } else {
             urlComponents.queryItems = [keyQueryItem, unitsQueryItem]
-            
             let jsonData = try! JSONSerialization.data(withJSONObject: params, options: .prettyPrinted)
             request.httpBody = jsonData
         }
