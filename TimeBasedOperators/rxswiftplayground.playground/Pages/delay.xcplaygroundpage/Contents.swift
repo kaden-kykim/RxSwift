@@ -8,29 +8,45 @@ let delayInSeconds: RxTimeInterval = 1.5
 let sourceObservable = PublishSubject<Int>()
 
 let sourceTimeline = TimelineView<Int>.make()
+let delayedSubscriptionTimeline = TimelineView<Int>.make()
 let delayedTimeline = TimelineView<Int>.make()
+let repeatTimeline = TimelineView<Int>.make()
 
 let stack = UIStackView.makeVertical([
-  UILabel.makeTitle("delay"),
-  UILabel.make("Emitted elements (\(elementsPerSecond) per sec.):"),
-  sourceTimeline,
-  UILabel.make("Delayed elements (with a \(delayInSeconds)s delay):"),
-  delayedTimeline])
+    UILabel.makeTitle("delay"),
+    UILabel.make("Emitted elements (\(elementsPerSecond) per sec.):"),
+    sourceTimeline,
+    UILabel.make("Delayed subscription (with a \(delayInSeconds)s delay):"),
+    delayedSubscriptionTimeline,
+    UILabel.make("Delayed elements (with a \(delayInSeconds * 2)s delay):"),
+    delayedTimeline,
+    repeatTimeline
+])
 
 var current = 1
 let timer = DispatchSource.timer(interval: 1.0 / Double(elementsPerSecond), queue: .main) {
-  sourceObservable.onNext(current)
-  current = current + 1
+    sourceObservable.onNext(current)
+    current = current + 1
 }
 
 _ = sourceObservable.subscribe(sourceTimeline)
 
-
 // Setup the delayed subscription
 
-// Start coding here
+_ = sourceObservable
+    .delaySubscription(delayInSeconds, scheduler: MainScheduler.instance)
+    .subscribe(delayedSubscriptionTimeline)
 
+_ = sourceObservable
+    .delay(delayInSeconds * 2, scheduler: MainScheduler.instance)
+    .subscribe(delayedTimeline)
 
+_ = Observable<Int>
+    .timer(3, scheduler: MainScheduler.instance)
+    .flatMap ({ _ in
+        sourceObservable.delay(RxTimeInterval(delayInSeconds), scheduler: MainScheduler.instance)
+    })
+    .subscribe(repeatTimeline)
 
 let hostView = setupHostView()
 hostView.addSubview(stack)
@@ -39,35 +55,35 @@ hostView
 
 // Support code -- DO NOT REMOVE
 class TimelineView<E>: TimelineViewBase, ObserverType where E: CustomStringConvertible {
-  static func make() -> TimelineView<E> {
-    let view = TimelineView(frame: CGRect(x: 0, y: 0, width: 400, height: 100))
-    view.setup()
-    return view
-  }
-  public func on(_ event: Event<E>) {
-    switch event {
-    case .next(let value):
-      add(.next(String(describing: value)))
-    case .completed:
-      add(.completed())
-    case .error(_):
-      add(.error())
+    static func make() -> TimelineView<E> {
+        let view = TimelineView(frame: CGRect(x: 0, y: 0, width: 400, height: 100))
+        view.setup()
+        return view
     }
-  }
+    public func on(_ event: Event<E>) {
+        switch event {
+        case .next(let value):
+            add(.next(String(describing: value)))
+        case .completed:
+            add(.completed())
+        case .error(_):
+            add(.error())
+        }
+    }
 }
 /*:
  Copyright (c) 2019 Razeware LLC
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
  distribute, sublicense, create a derivative work, and/or sell copies of the
  Software in any work that is designed, intended, or marketed for pedagogical or
@@ -75,7 +91,7 @@ class TimelineView<E>: TimelineViewBase, ObserverType where E: CustomStringConve
  or information technology.  Permission for such use, copying, modification,
  merger, publication, distribution, sublicensing, creation of derivative works,
  or sale is expressly withheld.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

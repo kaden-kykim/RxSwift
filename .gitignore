@@ -89,4 +89,7 @@ fastlane/test_output
 
 iOSInjectionProject/
 
+# Playground Example code
 Libs/
+*.o
+*.remap
