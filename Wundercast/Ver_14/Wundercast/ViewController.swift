@@ -91,9 +91,18 @@ class ViewController: UIViewController {
             .map { self.searchCityName.text ?? "" }
             .filter { !$0.isEmpty }
         
+        let maxAttempts = 4
         let textSearch = searchInput.flatMap { text in
             return ApiController.shared.currentWeather(city: text)
                 .do(onNext: { self.cache[text] = $0 })
+                //.retry(3)  // Infinite retry: retry()
+                .retryWhen( {
+                    return $0.enumerated().flatMap { attempt, error -> Observable<Int> in
+                        if attempt >= maxAttempts - 1 { return Observable.error(error) }
+                        print("== retrying after \(attempt + 1) seconds ==")
+                        return Observable<Int>.timer(DispatchTimeInterval.seconds(attempt + 1), scheduler: MainScheduler.instance).take(1)
+                    }
+                })
                 .catchError({ error in
                     guard let cachedData = self.cache[text] else {
                         return Observable.just(.empty)
