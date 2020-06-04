@@ -55,24 +55,25 @@ class ViewController: UIViewController {
         let searchInput = searchCityName.rx.controlEvent(.editingDidEndOnExit)
             .map { self.searchCityName.text ?? "" }
             .filter { !$0.isEmpty }
-        
-        let search = searchInput
-            .flatMapLatest ({ text in
-                return ApiController.shared.currentWeather(city: text)
-                    .catchErrorJustReturn(ApiController.Weather.dummy)
+        let textSearch = searchInput.flatMap({ return ApiController.shared.currentWeather(city: $0).catchErrorJustReturn(.dummy) })
+        let currentLocation = locationManager.rx.didUpdateLocations
+            .map { $0[0] }
+            .filter { return $0.horizontalAccuracy < kCLLocationAccuracyHundredMeters }
+        let geoInput = geoLocationButton.rx.tap.asObservable()
+            .do(onNext: {
+                self.locationManager.requestWhenInUseAuthorization()
+                self.locationManager.startUpdatingLocation()
             })
-            .asDriver(onErrorJustReturn: ApiController.Weather.dummy)
-        
+        let geoLocation = geoInput.flatMap { return currentLocation.take(1) }
+        let geoSearch = geoLocation.flatMap( { return ApiController.shared.currentWeather(at: $0.coordinate).catchErrorJustReturn(.dummy) })
+        let search = Observable.merge(geoSearch, textSearch).asDriver(onErrorJustReturn: .dummy)
         let running = Observable.merge(
                 searchInput.map { _ in true },
+                geoInput.map { _ in true },
                 search.map { _ in false }.asObservable()
             )
             .startWith(true)
             .asDriver(onErrorJustReturn: false)
-        
-//        let currentLocation = locationManager.rx.didUpdateLocations
-//            .map { $0[0] }
-//            .filter { return $0.horizontalAccuracy < kCLLocationAccuracyHundredMeters }
         
         geoLocationButton.rx.tap
             .subscribe(onNext: { [weak self] _ in
