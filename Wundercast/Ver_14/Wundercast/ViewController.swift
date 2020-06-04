@@ -94,7 +94,12 @@ class ViewController: UIViewController {
         let textSearch = searchInput.flatMap { text in
             return ApiController.shared.currentWeather(city: text)
                 .do(onNext: { self.cache[text] = $0 })
-                .catchErrorJustReturn(.empty)
+                .catchError({ error in
+                    guard let cachedData = self.cache[text] else {
+                        return Observable.just(.empty)
+                    }
+                    return Observable.just(cachedData)
+                })
         }
         
         let search = Observable.merge(geoSearch, textSearch)
