@@ -91,17 +91,15 @@ class ViewController: UIViewController {
             .map { self.searchCityName.text ?? "" }
             .filter { !$0.isEmpty }
         
-        let maxAttempts = 4
         let textSearch = searchInput.flatMap { text in
             return ApiController.shared.currentWeather(city: text)
-                .do(onNext: { self.cache[text] = $0 })
-                //.retry(3)  // Infinite retry: retry()
-                .retryWhen( {
-                    return $0.enumerated().flatMap { attempt, error -> Observable<Int> in
-                        if attempt >= maxAttempts - 1 { return Observable.error(error) }
-                        print("== retrying after \(attempt + 1) seconds ==")
-                        return Observable<Int>.timer(DispatchTimeInterval.seconds(attempt + 1), scheduler: MainScheduler.instance).take(1)
-                    }
+                .do(
+                    onNext: { self.cache[text] = $0 },
+                    onError: { e in
+                        DispatchQueue.main.async { [weak self] in
+                            guard let self = self else { return }
+                            self.showError(error: e)
+                        }
                 })
                 .catchError({ error in
                     guard let cachedData = self.cache[text] else {
@@ -180,6 +178,22 @@ class ViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.destructive))
         
         self.present(alert, animated: true)
+    }
+    
+    private func showError(error e: Error) {
+        guard let e = e as? ApiController.ApiError else {
+            InfoView.showIn(viewController: self, message: "An error occurred")
+            return
+        }
+        
+        InfoView.showIn(viewController: self, message: {
+            switch e {
+            case .cityNotFound:
+                return "City Name is invalid"
+            case .serverFailure:
+                return "Server error"
+            }
+        }())
     }
     
     // MARK: - Style
