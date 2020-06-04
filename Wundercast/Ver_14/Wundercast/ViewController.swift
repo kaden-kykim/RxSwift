@@ -87,6 +87,21 @@ class ViewController: UIViewController {
                 .catchErrorJustReturn(.empty)
         }
         
+        let maxAttempts = 4
+        let retryHandler: (Observable<Error>) -> Observable<Int> = { e in
+            return e.enumerated().flatMap { attempt, error -> Observable<Int> in
+                if attempt >= maxAttempts - 1 {
+                    return Observable.error(error)
+                } else if let casted = error as? ApiController.ApiError, casted == .invalidKey {
+                    return ApiController.shared.apiKey
+                        .filter { !$0.isEmpty }
+                        .map { _ in 1 }
+                }
+                print("== retrying after \(attempt + 1) seconds ==")
+                return Observable<Int>.timer(DispatchTimeInterval.seconds(attempt + 1), scheduler: MainScheduler.instance).take(1)
+            }
+        }
+        
         let searchInput = searchCityName.rx.controlEvent(.editingDidEndOnExit)
             .map { self.searchCityName.text ?? "" }
             .filter { !$0.isEmpty }
@@ -101,6 +116,7 @@ class ViewController: UIViewController {
                             self.showError(error: e)
                         }
                 })
+                .retryWhen(retryHandler)
                 .catchError({ error in
                     guard let cachedData = self.cache[text] else {
                         return Observable.just(.empty)
@@ -192,6 +208,8 @@ class ViewController: UIViewController {
                 return "City Name is invalid"
             case .serverFailure:
                 return "Server error"
+            case .invalidKey:
+                return "Key is invalid"
             }
         }())
     }
