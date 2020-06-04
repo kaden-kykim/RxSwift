@@ -123,6 +123,17 @@ class ViewController: UIViewController {
         search.map { $0.cityName }
             .drive(cityNameLabel.rx.text)
             .disposed(by: bag)
+        
+        search.map { [$0.overlay()] }
+            .drive(mapView.rx.overlays)
+            .disposed(by: bag)
+        
+        mapButton.rx.tap
+            .subscribe(onNext: { self.mapView.isHidden.toggle() })
+            .disposed(by: bag)
+        
+        mapView.rx.setDelegate(self)
+            .disposed(by: bag)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -153,5 +164,12 @@ class ViewController: UIViewController {
         humidityLabel.textColor = UIColor.cream
         iconLabel.textColor = UIColor.cream
         cityNameLabel.textColor = UIColor.cream
+    }
+}
+
+extension ViewController: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        guard let overlay = overlay as? ApiController.Weather.Overlay else { return MKOverlayRenderer() }
+        return ApiController.Weather.OverlayView(overlay: overlay, overlayIcon: overlay.icon)
     }
 }
