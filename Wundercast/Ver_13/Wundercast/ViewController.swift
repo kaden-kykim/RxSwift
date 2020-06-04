@@ -56,6 +56,7 @@ class ViewController: UIViewController {
             .map { self.searchCityName.text ?? "" }
             .filter { !$0.isEmpty }
         let textSearch = searchInput.flatMap({ return ApiController.shared.currentWeather(city: $0).catchErrorJustReturn(.dummy) })
+        
         let currentLocation = locationManager.rx.didUpdateLocations
             .map { $0[0] }
             .filter { return $0.horizontalAccuracy < kCLLocationAccuracyHundredMeters }
@@ -66,10 +67,17 @@ class ViewController: UIViewController {
             })
         let geoLocation = geoInput.flatMap { return currentLocation.take(1) }
         let geoSearch = geoLocation.flatMap( { return ApiController.shared.currentWeather(at: $0.coordinate).catchErrorJustReturn(.dummy) })
-        let search = Observable.merge(geoSearch, textSearch).asDriver(onErrorJustReturn: .dummy)
+        
+        let mapInput = mapView.rx.regionDidChangeAnimated
+            .skip(1)
+            .map { [unowned self] _ in self.mapView.centerCoordinate }
+        let mapSearch = mapInput.flatMap{ return ApiController.shared.currentWeather(at: $0).catchErrorJustReturn(.dummy) }
+        
+        let search = Observable.merge(geoSearch, textSearch, mapSearch).asDriver(onErrorJustReturn: .dummy)
         let running = Observable.merge(
                 searchInput.map { _ in true },
                 geoInput.map { _ in true },
+                mapInput.map { _ in true },
                 search.map { _ in false }.asObservable()
             )
             .startWith(true)

@@ -56,6 +56,14 @@ public extension Reactive where Base: MKMapView {
         return RxMKMapViewDelegateProxy.proxy(for: base)
     }
     
+    var regionDidChangeAnimated: ControlEvent<Bool> {
+        return ControlEvent(events:
+            delegate
+                .methodInvoked(#selector(MKMapViewDelegate.mapView(_:regionDidChangeAnimated:)))
+                .map { $0[1] as? Bool ?? false }
+        )
+    }
+    
     var overlays: Binder<[MKOverlay]> {
         return Binder(self.base) { (mapView, overlays) in
             mapView.removeOverlays(mapView.overlays)
