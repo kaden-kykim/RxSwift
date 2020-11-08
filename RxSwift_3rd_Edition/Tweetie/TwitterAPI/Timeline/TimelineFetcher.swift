@@ -95,8 +95,8 @@ class TimelineFetcher {
         let feedCursor = BehaviorRelay<TimelineCursor>(value: .none)
         
         // Re-fetch the timeline
-        
-        timeline = Observable<[Tweet]>.empty()
+        timeline = reachableTimerWithAccount
+            .withLatestFrom(feedCursor.asObservable()) { (account, cursor) in return (account: account, cursor: cursor) }
         
         // Store the latest position through timeline
         
